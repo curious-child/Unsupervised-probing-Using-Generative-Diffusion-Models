@@ -1,0 +1,55 @@
+out_dir: results/NsDiff_pred2
+dataset:
+  file_path: ["dataset/SLBP_model_data"]
+  filter: ["*"]
+  sampling_t: [100] #min_t=0.1
+  windows: [200]
+  pred_len: [1000]
+  interval_step: [200]
+  F_consistency: [True]
+ # data_dropout: [1]
+train:
+  model_evaluation: ["hold_out"]
+  train_model_select: ["NsDiff_model"]#"pretrain_f", "pretrain_g", "NsDiff_model"
+  traindata_size: [0.8]
+  train_batch_size: [21]
+  val_batch_size: [21]
+  train_epochs: [100]
+  test_set: [True]
+  ckpt: [ False ]
+  ckpt_period: [ 2 ]
+net:
+  device: ["cuda"]
+  scaler_type: ["StandardScaler"] #None,StandardScaler
+  task_model: ["NsDiff"]
+  rolling_length: [50]
+  diffusion_schedule: ["linear"]
+  diffusion_steps: [20]
+  beta_start: [0.0001]
+  beta_end: [0.02]
+  n_z_samples: [100]
+  parallel_sample: [10]
+  load_pretrain: [False]
+  freeze_pretrain: [False]
+  #cond_pred_model_param
+  d_model: [512]
+  output_attention: [False]
+  dropout: [0.05]
+  factor: [3]
+  n_heads: [8]
+  d_ff: [256]
+  activation: [gelu]
+  e_layers: [4]
+  d_layers: [2]
+  p_hidden_dims: [[64, 64]]
+  p_hidden_layers: [2]
+loss:
+  loss_metric: ["KL divergence"]
+optimizer:
+  optimizer_name: [Adam]
+  lr: [0.001]
+  weight_decay: [ 1e-5]
+  scheduler_set: [False]
+  scheduler: [MultiStepLR]
+  MstepLR_milestones: [[10]]
+  MstepLR_gamma: [0.1]

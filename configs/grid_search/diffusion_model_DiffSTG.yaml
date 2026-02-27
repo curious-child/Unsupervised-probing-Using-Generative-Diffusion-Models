@@ -1,0 +1,60 @@
+out_dir: results/DiffSTG_SIS
+dataset:
+  spdata_file_path: ["dataset/spdata_sde_SIS"]
+  graph_file_path: ["dataset/train_dataset_graph"]
+  filter: ['*']
+  sampling_t: [0.1] #min_t=0.1
+  windows: [ 100 ]
+  pred_len: [ 100 ]
+  interval_step: [50]
+
+train:
+  model_evaluation: ["hold_out"]
+  traindata_size: [0.8]
+  train_batch_size: [200]
+  val_batch_size: [100]
+  train_epochs: [20]
+  test_set: [True]
+  ckpt: [ False ]
+  ckpt_period: [ 2 ]
+net:
+  device: ["cuda:3"]
+  scaler_type: ["StandardScaler"] #None,StandardScaler
+  task_model: ["DiffSTG"]
+  diffusion_schedule: ["linear"]
+  diffusion_steps: [200]
+  inference_diffusion_steps: [20]
+  inference_trick: ["ddim"]
+  inference_schedule: ["cosine"]#linear,cosine
+  loss_weight_schedule: ["constant"]#constant,logNormal
+  sequential_sampling: [10]
+  parallel_sampling: [10]
+  mask_ratio: [0.0]
+  #uGnet_params:
+  d_h: [4]
+  Td_h: [10,6]
+  channel_multipliers: [[2,2],[1, 2]]
+  n_blocks: [2]
+  gnn_name: ["ResGatedGraphConv","GATConv","SAGEConv"]#,"SAGEConv"
+  gnn_params:
+    ResGatedGraphConv:
+      bias: [ true ]
+      root_weight: [ true ]
+    GATConv:
+      concat: [ true ]
+      dropout: [ 0.05 ]
+      heads: [ 2 ]
+      negative_slope: [ 0.2 ]
+    SAGEConv:
+      aggr: [ "mean"]
+
+loss:
+  loss_metric: ["KL divergence"]
+optimizer:
+  optimizer_name: [Adam]
+  lr: [0.0001]
+  weight_decay: [ 1e-5]
+  scheduler_set: [False]
+  scheduler: [MultiStepLR]
+  MstepLR_milestones: [[50]]
+  MstepLR_gamma: [0.1]
