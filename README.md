@@ -13,7 +13,7 @@
 " git clone https://github.com/curious-child/Unsupervised-Probing-Critical-Transitions.git
  cd Unsupervised-Probing-Critical-Transitions "
 2.  Install dependencies:
-"pip install -r requirements.txt"
+" pip install -r requirements.txt "
 
 ##  Model Architectures
 The repository provides two diffusion models, as detailed in the paper:
