@@ -1,7 +1,7 @@
 # Unsupervised Probing Critical Transitions in Complex Systems Using Generative Diffusion Models
-*This repository contains the source codes and data for our paper submitted and under review :
-*Peng Zhang, Jun Fu, Tonglei Cheng and Rolf Findeisen, Unsupervised Probing Critical Transitions in Complex Systems Using Generative Diffusion Models.
-*This repository contains the implementation for using generative diffusion models (specifically NsDiff and DiffSTG) as unsupervised probes to detect critical transitions (tipping points) in complex dynamical systems. The core discovery is the "variance collapse" phenomenon, where the predictive uncertainty of the model sharply declines as the system approaches a critical point.
+* This repository contains the source codes and data for our paper submitted and under review :
+* Peng Zhang, Jun Fu, Tonglei Cheng and Rolf Findeisen, Unsupervised Probing Critical Transitions in Complex Systems Using Generative Diffusion Models.
+* This repository contains the implementation for using generative diffusion models (specifically NsDiff and DiffSTG) as unsupervised probes to detect critical transitions (tipping points) in complex dynamical systems. The core discovery is the "variance collapse" phenomenon, where the predictive uncertainty of the model sharply declines as the system approaches a critical point.
 ##  Quick Start
 ### Prerequisites
 
@@ -10,8 +10,8 @@
 ### Installation
 1.  Clone the repository:
 
-"git clone https://github.com/curious-child/Unsupervised-Probing-Critical-Transitions.git
-cd Unsupervised-Probing-Critical-Transitions"
+" git clone https://github.com/curious-child/Unsupervised-Probing-Critical-Transitions.git
+ cd Unsupervised-Probing-Critical-Transitions "
 2.  Install dependencies:
 "pip install -r requirements.txt"
 
@@ -33,12 +33,12 @@ The code can generate time-series data from several dynamical systems exhibiting
 *   **Shallow Lake with Bream and Pike (SLBP) Model** （See `./dataset/SLBP_dynamic_gene.py`）: A single-node, two-variable system for detailed bifurcation and trajectory analysis.
 ## Usage
 ### Configuration and Training
-*All training process of our models are configured through YAML files. 
-*To training models with different configurations for Networked dynamical systems:
+* All training process of our models are configured through YAML files. 
+* To training models with different configurations for Networked dynamical systems:
 
 "python main_SSLtrain_diffusion_spdata.py --cfg configs/grid_search/diffusion_model_NsDiff.yaml"
 
-*To training models with different configurations for the Shallow Lake with Bream and Pike (SLBP) model:
+* To training models with different configurations for the Shallow Lake with Bream and Pike (SLBP) model:
 
 "python main_SSLtrain_diffusion_timeseries.py --cgf configs/grid_search/diffusion_model_NsDiff.yaml"
 
@@ -57,17 +57,17 @@ same type of networked systems with different underlying topologies, i.e., run:
 python NsDiff_ews_generalization_graph.py"
 
 To evaluate the cross-system transferability of NsDiff by applying models trained exclusively on one networked system to entirely unseen systems for critical transition detection, run:
-"python diffusion_ews_spdata_NsDiff.py
-python NsDiff_ews_generalization_dynamics.py"
+" python diffusion_ews_spdata_NsDiff.py
+python NsDiff_ews_generalization_dynamics.py "
 
 #### Experiment 3: Mechanism Analysis
 To validate robustness to noise,  and parameter variations, we run:
-"python diffusion_ews_model_grid_SLBP.py
+" python diffusion_ews_model_grid_SLBP.py
 python diffusion_ews_dynamic_grid_SLBP.py
-python diffusion_SLBP_ews_model_sensivity.py"
+python diffusion_SLBP_ews_model_sensivity.py "
 To investigate the mechanistic basis of variance collapse through PCA and entropy analysis, we run:
 
-"python diffusion_SLBP_model_analysis.py"
+" python diffusion_SLBP_model_analysis.py "
 
 ##  License
 
