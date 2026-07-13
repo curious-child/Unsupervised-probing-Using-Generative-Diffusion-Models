@@ -1,0 +1,54 @@
+dataset:
+  filter: '*'
+  graph_file_path: dataset/train_dataset_graph
+  interval_step: 50
+  pred_len: 100
+  sampling_t: 1
+  spdata_file_path: dataset/spdata_sde_biomass
+  windows: 100
+loss:
+  loss_metric: KL divergence
+net:
+  F: 1
+  T_h: 100
+  T_p: 100
+  Td_h: 10
+  channel_multipliers:
+  - 2
+  - 2
+  d_h: 4
+  device: cuda:0
+  diffusion_schedule: linear
+  diffusion_steps: 200
+  gnn_name: ResGatedGraphConv
+  gnn_param:
+    bias: true
+    root_weight: true
+  inference_diffusion_steps: 20
+  inference_schedule: cosine
+  inference_trick: ddim
+  loss_weight_schedule: constant
+  mask_ratio: 0.0
+  n_blocks: 2
+  parallel_sampling: 10
+  scaler_type: StandardScaler
+  sequential_sampling: 10
+  task_model: DiffSTG
+optimizer:
+  MstepLR_gamma: 0.1
+  MstepLR_milestones:
+  - 50
+  lr: 0.0001
+  optimizer_name: Adam
+  scheduler: MultiStepLR
+  scheduler_set: false
+  weight_decay: 1e-5
+train:
+  ckpt: true
+  ckpt_period: 2
+  model_evaluation: hold_out
+  test_set: true
+  train_batch_size: 200
+  train_epochs: 20
+  traindata_size: 0.8
+  val_batch_size: 100

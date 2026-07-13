@@ -280,3 +280,4 @@ class DiffSTG(graph_Diffusion_model):
 
 
         return splitted_predict_x0, x0_truth
+

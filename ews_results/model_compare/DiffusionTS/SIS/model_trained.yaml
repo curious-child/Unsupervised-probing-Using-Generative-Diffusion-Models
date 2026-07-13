@@ -1,0 +1,63 @@
+dataset:
+  F_consistency: false
+  data_dropout: 0.01
+  file_path: dataset/spdata_sde_SIS
+  filter: '*'
+  interval_step: 100
+  pred_len: 100
+  sampling_t: 0.1
+  windows: 100
+loss:
+  loss_metric: DiffusionTS loss
+net:
+  attn_pd: 0.0
+  beta_schedule: cosine
+  d_model: 64
+  dataset_nf: 1
+  device: cuda:3
+  diffusion_steps: 100
+  eta: 0.0
+  infill_coef: 0.1
+  infill_learning_rate: 0.05
+  kernel_size: null
+  loss_type: l2
+  mlp_hidden_times: 4
+  n_heads: 4
+  n_layer_dec: 6
+  n_layer_enc: 3
+  n_z_samples: 100
+  padding_size: null
+  parallel_sample: 10
+  pred_len: 100
+  pretrain_f_path: results/pre_model_F/dataset__w100p100st0.1
+  pretrain_g_path: results/pre_model_g/dataset__w100p100st0.1
+  reg_weight: null
+  resid_pd: 0.0
+  sampling_timesteps: 100
+  scaler_type: StandardScaler
+  task_model: DiffusionTS
+  timesteps: 100
+  use_ff: true
+  windows: 100
+optimizer:
+  MstepLR_gamma: 0.1
+  MstepLR_milestones:
+  - 10
+  lr: 0.001
+  optimizer_name: Adam
+  scheduler: MultiStepLR
+  scheduler_set: false
+  weight_decay: 1e-5
+train:
+  ckpt: false
+  ckpt_period: 2
+  dataparallel: false
+  model_evaluation: hold_out
+  pretrain_model: None
+  pretrain_path: None
+  test_set: true
+  train_batch_size: 512
+  train_epochs: 100
+  train_model_select: DiffusionTS_model
+  traindata_size: 0.8
+  val_batch_size: 512

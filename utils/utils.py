@@ -400,7 +400,7 @@ def pre_DataSet_Timeseries( file_path,windows,pred_len,interval_step,sampling_t,
     from  tqdm import tqdm
     dataSet=[]
     pred_times_len=windows+pred_len
-    F_consistency=params["F_consistency"] if "F_consistency" in params.keys() else True
+    STG_exist=params["STG_exist"] if "STG_exist" in params.keys() else True
     sampling_t_min=0.1
     assert sampling_t>=sampling_t_min,"Error: sampling_t should be greater than or equal to 0.1"
     sampling_interval=int(sampling_t/sampling_t_min)
@@ -420,10 +420,11 @@ def pre_DataSet_Timeseries( file_path,windows,pred_len,interval_step,sampling_t,
             raise Exception("There are errors in {}".format(file))
         assert time_len//pred_times_len>0,"Error: data length is not enough!!!"
         timeseries_data=sampling_torch_time_series.unfold(0,pred_times_len,interval_step)#[n,F,pred_times_len]
-        if F_consistency:
-            timeseries_data=timeseries_data.permute(0,2,1)#[n,pred_times_len,F]
+        if STG_exist:
+            timeseries_data = timeseries_data.reshape(-1, pred_times_len).unsqueeze(-1)  # [n*F,pred_times_len,1]
         else:
-            timeseries_data=timeseries_data.reshape(-1,pred_times_len).unsqueeze(-1)#[n*F,pred_times_len,1]
+            timeseries_data = timeseries_data.permute(0, 2, 1)  # [n,pred_times_len,F]
+
         #print("timeseries_data shape:{}".format(timeseries_data.shape))
         timeseries_data=timeseries_data.unbind(0)
 
@@ -443,7 +444,54 @@ def pre_DataSet_Timeseries( file_path,windows,pred_len,interval_step,sampling_t,
 
 
 
+def pre_DataSet_Timeseries_real( file_path,windows,pred_len,interval_step,sampling_t,filter="*",**params):
+    from  tqdm import tqdm
+    dataSet=[]
+    pred_times_len=windows+pred_len
+    STG_exist=params["STG_exist"] if "STG_exist" in params.keys() else True
+    sampling_t_min=0.1
+    assert sampling_t>=sampling_t_min,"Error: sampling_t should be greater than or equal to 0.1"
+    sampling_interval=int(sampling_t/sampling_t_min)
+    for file in tqdm(sorted(glob(file_path+"/{}/pt/*.pt".format(filter)))):
+        if ".py" in file:
+            continue
+        try:
+            loaded_data=torch.load(file)
+            file_name=file.split("/")[-2]
+           # print(file_name)
+            torch_time_series=loaded_data['ys_dynamic']#[T_obs_num,F] 时间间隔为0.1
+           # print(torch_time_series.shape)
+            sampling_torch_time_series=torch_time_series[::sampling_interval,:]
+            # print("torch_time_series shape:{}".format(torch_time_series.shape))
+            # print("torch_time_series type:{}".format(torch_time_series.dtype))
+            time_len=sampling_torch_time_series.shape[0]
+        except Exception:
 
+            raise Exception("There are errors in {}".format(file))
+        assert time_len//pred_times_len>0,"Error: data length is not enough!!!"
+        timeseries_data=sampling_torch_time_series.unfold(0,pred_times_len,interval_step)#[n,F,pred_times_len]
+        if STG_exist:
+            timeseries_data = timeseries_data.reshape(-1, pred_times_len).unsqueeze(-1)  # [n*F,pred_times_len,1]
+        else:
+            timeseries_data = timeseries_data.permute(0, 2, 1)  # [n,pred_times_len,F]
+
+        #print("timeseries_data shape:{}".format(timeseries_data.shape))
+        timeseries_data=timeseries_data.unbind(0)
+
+        for time_series in timeseries_data:
+            if "data_dropout" in params.keys() and np.random.uniform()>params["data_dropout"]:
+                continue
+            dataSet.append(time_series.clone())
+            # torch_time_series = preprocess_data_sequence(time_series, data_filer=filter, file_name=file_name)
+            # #print("time_series shape:{}".format(time_series.shape))
+            # if isinstance(torch_time_series,tuple):
+            #     for time_series in torch_time_series:
+            #         dataSet.append(time_series.clone())
+            # elif isinstance(torch_time_series,torch.Tensor):
+            #     dataSet.append(torch_time_series.clone())
+
+
+    return dataSet
 
 
 
@@ -622,7 +670,7 @@ def load_diffusion_model(path: str, device, infer_para=None,dataparallel=True, *
         state = torch.load(f, map_location=lambda storage, loc: storage)
 
     loaded_net_param = state["net_param"]
-    print(loaded_net_param)
+   # print(loaded_net_param)
     if infer_para is not None:
         loaded_net_param.update(infer_para)
     loaded_state_dict = state['state_dict']

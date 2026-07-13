@@ -273,8 +273,8 @@ if __name__ == '__main__':
     burn_time = 100  # 预热期时长
 
     total_time = 10000  #
-    epsilon_min=0
-    epsilon_max=2.5
+    epsilon_min=1.0
+    epsilon_max=1.0
     # 网络参数设置
 
 

@@ -31,17 +31,21 @@ def run_training( trainset, validationset,train_param,net_param,loss_param,optim
                                  pretrain_f_path=net_param["pretrain_f_path"],
                                  pretrain_g_path=net_param["pretrain_g_path"],
                                  ).to(net_param["device"])
-
+   # print(train_param["pretrain_model"])
+    if train_param["pretrain_model"] != "None":
+        load_stata_dict=torch.load(os.path.join(train_param["pretrain_path"],train_param["pretrain_model"]))["state_dict"]
+        if not torch.cuda.device_count() > 1 or not train_param["dataparallel"]:
+            # print(loaded_state_dict.keys())
+            load_stata_dict = {k.replace('module.', ''): v for k, v in load_stata_dict.items()}
+        train_GNN.load_state_dict(load_stata_dict)
     if train_GNN.scaler =="StandardScaler":
         train_GNN.scaler_fit(trainset_data)
-    if train_param.get("train_model_select") is None or train_param["train_model_select"]=="NsDiff_model":
-        optimizer = train_optimizers(filter(lambda p: p.requires_grad,train_GNN.parameters()),optimizer_param)
-    elif train_param["train_model_select"]=="pretrain_f":
+    if train_param["train_model_select"]=="pretrain_f":
         optimizer = train_optimizers(train_GNN.cond_pred_model.parameters(), optimizer_param)
     elif train_param["train_model_select"]=="pretrain_g":
         optimizer = train_optimizers(train_GNN.cond_pred_model_g.parameters(), optimizer_param)
     else:
-        raise ValueError("train_model_select error")
+        optimizer = train_optimizers(filter(lambda p: p.requires_grad,train_GNN.parameters()),optimizer_param)
     if optimizer_param["scheduler_set"]==True:
         scheduler= train_schedulers(optimizer,optimizer_param)
     else:
@@ -69,18 +73,25 @@ def run_training( trainset, validationset,train_param,net_param,loss_param,optim
                # print("\r******************train_epoch:{} batch:{}********************\n".format(epoch,n),end=" ")
 
                 if train_GNN.scaler == "StandardScaler":
-                    data = train_GNN.scaler_transform(data)
-                data = data.to(net_param["device"])
+                    data_norm = train_GNN.scaler_transform(data)
+                elif train_GNN.scaler =="batchScaler":
+                    mean = data.mean(dim=1, keepdim=True)  # [B, 1, F]
+                    std = data.std(dim=1, keepdim=True, unbiased=False).clamp_min(1e-6)
+
+                    data_norm = (data - mean) / std
+                else:
+
+                    data_norm=data
+
+                data = data_norm.to(net_param["device"])
                # time_step=time.time()
                 #out: [N,2]
-                if train_param["train_model_select"]=="NsDiff_model":
-                    loss = train_GNN.training_step(batch=data)  # diffusion training
-                elif train_param["train_model_select"]=="pretrain_f":
+                if train_param["train_model_select"]=="pretrain_f":
                     loss = train_GNN.pretrain_f(batch=data)  # pretrain f
                 elif train_param["train_model_select"]=="pretrain_g":
                     loss = train_GNN.pretrain_g(batch=data)  # pretrain g
                 else:
-                    raise ValueError("train_model_select error")
+                    loss = train_GNN.training_step(batch=data)  # diffusion training
                 if  torch.isnan(loss).any():
                     continue
 
@@ -107,16 +118,22 @@ def run_training( trainset, validationset,train_param,net_param,loss_param,optim
                     for n, data in enumerate(val_loader):
 
                         if train_GNN.scaler == "StandardScaler":
-                            data = train_GNN.scaler_transform(data)
-                        data = data.to(net_param["device"])
-                        if train_param["train_model_select"] == "NsDiff_model":
-                            loss = train_GNN.training_step(batch=data)  # diffusion training
-                        elif train_param["train_model_select"] == "pretrain_f":
+                            data_norm = train_GNN.scaler_transform(data)
+                        elif train_GNN.scaler == "batchScaler":
+                            mean = data.mean(dim=1, keepdim=True)  # [B, 1, F]
+                            std = data.std(dim=1, keepdim=True, unbiased=False).clamp_min(1e-6)
+
+                            data_norm = (data - mean) / std
+                        else:
+
+                            data_norm = data
+                        data = data_norm.to(net_param["device"])
+                        if train_param["train_model_select"] == "pretrain_f":
                             loss = train_GNN.pretrain_f(batch=data)  # pretrain f
                         elif train_param["train_model_select"] == "pretrain_g":
                             loss = train_GNN.pretrain_g(batch=data)  # pretrain g
                         else:
-                            raise ValueError("train_model_select error")
+                            loss = train_GNN.training_step(batch=data)  # diffusion training
 
 
                         val_score = n * val_score / (n + 1) + loss.cpu().detach().item() / (n + 1)
@@ -136,17 +153,15 @@ def run_training( trainset, validationset,train_param,net_param,loss_param,optim
                     pass
                 else:
                     os.mkdir(sckpt_path)
-                if train_param.get("train_model_select") is None or train_param["train_model_select"] == "NsDiff_model":
-                    save_checkpoint(path=sckpt_path, model_name="tmpt_model_{}iter".format(epoch), model=train_GNN,
-                                    net_param=net_param)
-                elif train_param["train_model_select"] == "pretrain_f":
+                if train_param["train_model_select"] == "pretrain_f":
                     save_checkpoint(path=sckpt_path, model_name="tmpt_model_{}iter".format(epoch),
-                                    model=train_GNN.cond_pred_model, net_param=net_param)
+                                    model=train_GNN, net_param=net_param)
                 elif train_param["train_model_select"] == "pretrain_g":
                     save_checkpoint(path=sckpt_path, model_name="tmpt_model_{}iter".format(epoch),
-                                    model=train_GNN.cond_pred_model_g, net_param=net_param)
+                                    model=train_GNN, net_param=net_param)
                 else:
-                    raise ValueError("train_model_select error")
+                    save_checkpoint(path=sckpt_path, model_name="tmpt_model_{}iter".format(epoch), model=train_GNN,
+                                    net_param=net_param)
     except Exception as e:
 
         if "CUDA out of memory" in str(e):
@@ -176,17 +191,15 @@ def run_training( trainset, validationset,train_param,net_param,loss_param,optim
         print("trained_model文件夹目录已存在")
     else:
         os.mkdir(model_path)
-    if train_param.get("train_model_select") is None or train_param["train_model_select"] == "NsDiff_model":
+    if train_param["train_model_select"] == "pretrain_f":
         save_checkpoint(path=model_path, model_name="model_trained", model=train_GNN,
                         net_param=net_param)
-    elif train_param["train_model_select"] == "pretrain_f":
-        save_checkpoint(path=model_path, model_name="model_trained", model=train_GNN.cond_pred_model,
-                        net_param=net_param)
     elif train_param["train_model_select"] == "pretrain_g":
-        save_checkpoint(path=model_path, model_name="model_trained", model=train_GNN.cond_pred_model_g,
+        save_checkpoint(path=model_path, model_name="model_trained", model=train_GNN,
                         net_param=net_param)
     else:
-        raise ValueError("train_model_select error")
+        save_checkpoint(path=model_path, model_name="model_trained", model=train_GNN,
+                        net_param=net_param)
     #保存训练模型性能指标数据 文件夹可略去
     data_path = os.path.join(records_path, "train_trace")
     if os.path.exists(data_path):

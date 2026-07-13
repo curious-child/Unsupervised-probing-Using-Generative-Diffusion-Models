@@ -1,0 +1,63 @@
+dataset:
+  STG_exist: false
+  file_path: dataset/bury_2021_training_data2
+  filter: ts_500
+  interval_step: 10
+  pred_len: 200
+  sampling_t: 0.1
+  windows: 200
+loss:
+  loss_metric: KL divergence
+net:
+  activation: gelu
+  beta_end: 0.02
+  beta_start: 0.0001
+  d_ff: 256
+  d_layers: 2
+  d_model: 512
+  dataset_nf: 1
+  device: cuda:0
+  diffusion_schedule: linear
+  diffusion_steps: 20
+  dropout: 0.05
+  e_layers: 4
+  factor: 3
+  freeze_pretrain: false
+  load_pretrain: false
+  n_heads: 8
+  n_z_samples: 100
+  output_attention: false
+  p_hidden_dims:
+  - 64
+  - 64
+  p_hidden_layers: 2
+  parallel_sample: 10
+  pred_len: 200
+  pretrain_f_path: results/pre_model_F/dataset_ts_500_w200p200st0.1
+  pretrain_g_path: results/pre_model_g/dataset_ts_500_w200p200st0.1
+  rolling_length: 50
+  scaler_type: None
+  task_model: NsDiff_model_variants
+  windows: 200
+optimizer:
+  MstepLR_gamma: 0.1
+  MstepLR_milestones:
+  - 10
+  lr: 0.001
+  optimizer_name: Adam
+  scheduler: MultiStepLR
+  scheduler_set: false
+  weight_decay: 1e-5
+train:
+  ckpt: false
+  ckpt_period: 2
+  dataparallel: false
+  model_evaluation: hold_out
+  pretrain_model: None
+  pretrain_path: ews_results/model_compare/NsDiff
+  test_set: true
+  train_batch_size: 50
+  train_epochs: 50
+  train_model_select: cond_var
+  traindata_size: 0.9
+  val_batch_size: 50

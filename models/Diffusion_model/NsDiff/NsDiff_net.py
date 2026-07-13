@@ -155,8 +155,8 @@ class NsDiff_net(nn.Module):
 
         # CATE MLP
         self.diffussion_model = ConditionalGuidedModel(configs.diffusion_steps, configs.dataset_nf)
-        if torch.cuda.device_count() > 1:
-            self.diffussion_model = nn.DataParallel(self.diffussion_model)
+        # if torch.cuda.device_count() > 1:
+        #     self.diffussion_model = nn.DataParallel(self.diffussion_model)
 
 
 

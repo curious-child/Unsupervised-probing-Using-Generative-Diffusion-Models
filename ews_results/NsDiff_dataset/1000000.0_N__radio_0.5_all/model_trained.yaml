@@ -1,0 +1,60 @@
+dataset:
+  file_path: dataset/SLBP_model_data
+  filter: '*1000000.0_N_*'
+  interval_step: 5
+  pred_len: 200
+  sampling_t: 100
+  train_radio: 0.5
+  windows: 200
+loss:
+  loss_metric: KL divergence
+net:
+  activation: gelu
+  beta_end: 0.02
+  beta_start: 0.0001
+  d_ff: 256
+  d_layers: 2
+  d_model: 512
+  dataset_nf: 2
+  device: cuda
+  diffusion_schedule: linear
+  diffusion_steps: 20
+  dropout: 0.05
+  e_layers: 4
+  factor: 3
+  freeze_pretrain: false
+  load_pretrain: false
+  n_heads: 8
+  n_z_samples: 100
+  output_attention: false
+  p_hidden_dims:
+  - 64
+  - 64
+  p_hidden_layers: 2
+  parallel_sample: 100
+  pred_len: 200
+  pretrain_f_path: results/pre_model_F/1000000.0_N__radio_0.5
+  pretrain_g_path: results/pre_model_g/1000000.0_N__radio_0.5
+  rolling_length: 100
+  scaler_type: StandardScaler
+  task_model: NsDiff
+  windows: 200
+optimizer:
+  MstepLR_gamma: 0.1
+  MstepLR_milestones:
+  - 10
+  lr: 0.001
+  optimizer_name: Adam
+  scheduler: MultiStepLR
+  scheduler_set: false
+  weight_decay: 1e-5
+train:
+  ckpt: false
+  ckpt_period: 2
+  model_evaluation: hold_out
+  test_set: true
+  train_batch_size: 50
+  train_epochs: 100
+  train_model_select: NsDiff_model
+  traindata_size: 0.8
+  val_batch_size: 50

@@ -1,0 +1,53 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments and local settings
+.venv/
+venv/
+env/
+.env
+.idea/
+.vscode/
+
+# Generated logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# Large archives are distributed separately
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.gz
+
+# Simulated trajectories are generated locally or distributed through Zenodo.
+# Keep only simulation programs and the reusable graph topologies in Git.
+dataset/*
+!dataset/*.py
+!dataset/train_dataset_graph/
+!dataset/train_dataset_graph/**
+
+# Keep trained model parameters and YAML configurations, but exclude generated
+# prediction caches and analysis outputs.
+ews_results/**/*.pt
+ews_results/**/*.png
+ews_results/**/*.svg
+ews_results/**/*.pdf
+ews_results/**/*.csv
+ews_results/**/*.json
+ews_results/**/datas/
+ews_results/**/data/
+ews_results/**/statistics_dataset/
+
+# Figure and experiment outputs can be reproduced from the scripts.
+paper_figures/outputs/
+results/
+HP_analysis_result/
+

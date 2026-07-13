@@ -1,23 +1,26 @@
-out_dir: results/NsDiff_pred2
+out_dir: results/NsDiff_bury_pregscaler
 dataset:
-  file_path: ["dataset/SLBP_model_data"]
+  file_path: ["dataset/bury_2021_training_data"]
   filter: ["*"]
-  sampling_t: [100] #min_t=0.1
+  sampling_t: [0.1] #min_t=0.1
   windows: [200]
-  pred_len: [1000]
-  interval_step: [200]
-  F_consistency: [True]
+  pred_len: [200]
+  interval_step: [50]
+  STG_exist: [False]
  # data_dropout: [1]
 train:
   model_evaluation: ["hold_out"]
-  train_model_select: ["NsDiff_model"]#"pretrain_f", "pretrain_g", "NsDiff_model"
-  traindata_size: [0.8]
+  train_model_select: ["pretrain_g"]#"pretrain_f", "pretrain_g", "NsDiff_model"
+  traindata_size: [0.9]
   train_batch_size: [21]
   val_batch_size: [21]
-  train_epochs: [100]
+  train_epochs: [50]
   test_set: [True]
   ckpt: [ False ]
   ckpt_period: [ 2 ]
+  dataparallel: [False]
+  pretrain_path: [ "ews_results/model_compare/NsDiff"]
+  pretrain_model: [ "None"]
 net:
   device: ["cuda"]
   scaler_type: ["StandardScaler"] #None,StandardScaler
@@ -47,7 +50,7 @@ loss:
   loss_metric: ["KL divergence"]
 optimizer:
   optimizer_name: [Adam]
-  lr: [0.001]
+  lr: [0.001,0.0001]
   weight_decay: [ 1e-5]
   scheduler_set: [False]
   scheduler: [MultiStepLR]

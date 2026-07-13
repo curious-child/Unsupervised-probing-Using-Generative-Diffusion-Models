@@ -8,7 +8,7 @@ from scipy.fftpack import ifftn
 from configs.configs_diffusion_ts import parse_args
 import os
 import numpy as np
-from utils.utils import  save_config, grid_parameters_generative_learning, pre_DataSet_Timeseries
+from utils.utils import  save_config, grid_parameters_generative_learning, pre_DataSet_Timeseries,pre_DataSet_Timeseries_real
 from sklearn.model_selection import train_test_split,KFold
 
 
@@ -129,6 +129,10 @@ def cross_val_score(dataset,train_param,net_param,loss_param,optimizer_param,rec
         plt.show()
     return average_scores
 
+
+
+
+
 def grid_search(dataset_params,train_params,net_params,loss_params,optimizer_params,records_path):
     print("records_path:", records_path)
     Hparams_path = "HP_analysis_result/{}".format(records_path.split("/")[-1])
@@ -139,7 +143,8 @@ def grid_search(dataset_params,train_params,net_params,loss_params,optimizer_par
     for params_values in it.product(  *dataset_params.values() ):
         dataset_param=dict(zip(dataset_params.keys(),params_values))
        # print(dataset_param)
-        dataset = pre_DataSet_Timeseries(**dataset_param)
+        #dataset = pre_DataSet_Timeseries(**dataset_param)
+        dataset = pre_DataSet_Timeseries_real(**dataset_param)
 
         parameters_list,Hp_grid_file=grid_parameters_generative_learning(train_params,net_params,loss_params,optimizer_params)
         new_model_file_relatvie_path="/dataset_{}_w{}p{}st{}".format(dataset_param["filter"].replace("*", ""),

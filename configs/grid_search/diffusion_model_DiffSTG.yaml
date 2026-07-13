@@ -17,6 +17,7 @@ train:
   test_set: [True]
   ckpt: [ False ]
   ckpt_period: [ 2 ]
+
 net:
   device: ["cuda:3"]
   scaler_type: ["StandardScaler"] #None,StandardScaler
